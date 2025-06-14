@@ -17,3 +17,8 @@
 ## website
 
 TBD
+
+## padrões
+
+- ISO/IEC 17025 :exclamation:
+  - [ISO](https://www.iso.org/ISO-IEC-17025-testing-and-calibration-laboratories.html)
