@@ -1,5 +1,5 @@
 ### **Arquitetura Detalhada do MVP: Marketplace de Rastreabilidade Metrológica**
-![Diagrama da Arquitetura do MVP](./images/diagram.png)
+![Diagrama da Arquitetura do MVP](images/diagram.png)
 
 #### **1. Visão Geral**
 
@@ -79,6 +79,7 @@ sequenceDiagram
 
 O arquivo JSON de metadados é o coração do DCC NFT. Ele não só descreve o certificado, mas também estabelece a cadeia de rastreabilidade on-chain, agora alinhado com a terminologia padrão da indústria.
 
+```markdown
 ```json
 {
   "name": "Certificado de Calibração #12345",
@@ -117,6 +118,7 @@ O arquivo JSON de metadados é o coração do DCC NFT. Ele não só descreve o c
     }
   ]
 }
+```
 ```
 
 **Análise dos Campos de Rastreabilidade:**
