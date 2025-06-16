@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.25;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title Digital Calibration Certificate NFT (DCCNFT)
- * @author CaliBRA 
+ * @author CaliBRA
  * @notice Emits non-transferable NFTs representing calibration certificates
  * @dev Custom URI storage, CEI pattern, revocation, pausability, and OpenZeppelin Counters
  */
 contract DCCNFT is ERC721, Ownable, Pausable {
     using Strings for uint256;
-    using Counters for Counters.Counter;
 
     // ----------------------------- //
     // --------- Errors ------------ //
@@ -52,7 +50,7 @@ contract DCCNFT is ERC721, Ownable, Pausable {
     // --------- Storage ----------- //
     // ----------------------------- //
 
-    Counters.Counter private _tokenIdCounter;
+    uint256 private _tokenIdCounter;
 
     /// @notice Maps tokenId to associated certificate metadata
     mapping(uint256 => DCCMetadata) private _dccData;
@@ -114,8 +112,8 @@ contract DCCNFT is ERC721, Ownable, Pausable {
         if (expiresAt <= block.timestamp) revert InvalidExpiration();
 
         // === Effects ===
-        tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        tokenId = _tokenIdCounter;
+        _tokenIdCounter += 1;
 
         _dccData[tokenId] = DCCMetadata({
             xmlHash: xmlHash,
@@ -127,7 +125,7 @@ contract DCCNFT is ERC721, Ownable, Pausable {
         _tokenURIs[tokenId] = certificateURI;
 
         // === Interactions ===
-        _mint(to, tokenId);
+        _safeMint(to, tokenId);
 
         emit DCCMinted(to, tokenId, calibrationType);
     }
