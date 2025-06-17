@@ -36,7 +36,7 @@ public class LaboratoriesSeeder implements CommandLineRunner {
 
     System.out.println("========== Checking laboratory data ==========");
 
-    // Verificar se já existem laboratórios no banco de dados
+    // Check if there are already laboratories in the database
     if (laboratoryRepository.count() > 0) {
       System.out.println("========== Laboratories already seeded. Skipping... ==========");
       return;
