@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +15,7 @@ import br.com.calibra.laboratories.entity.Laboratory;
 import br.com.calibra.laboratories.repository.CalibrationTypeRepository;
 import br.com.calibra.laboratories.repository.LaboratoryRepository;
 
-//@Component
+@Component
 public class LaboratoriesSeeder implements CommandLineRunner {
 
   private final LaboratoryRepository laboratoryRepository;
@@ -33,10 +34,19 @@ public class LaboratoriesSeeder implements CommandLineRunner {
   @Override
   public void run(String... args) throws Exception {
 
+    System.out.println("========== Checking laboratory data ==========");
+
+    // Verificar se já existem laboratórios no banco de dados
+    if (laboratoryRepository.count() > 0) {
+      System.out.println("========== Laboratories already seeded. Skipping... ==========");
+      return;
+    }
+
     System.out.println("========== Loading laboratory data ==========");
 
     InputStream input = getClass().getResourceAsStream("/laboratories.json");
-    List<Map<String, Object>> labs = objectMapper.readValue(input, new TypeReference<>() {});
+    List<Map<String, Object>> labs = objectMapper.readValue(input, new TypeReference<>() {
+    });
 
     for (Map<String, Object> labData : labs) {
       Map<String, String> typeData = (Map<String, String>) labData.get("calibrationType");
