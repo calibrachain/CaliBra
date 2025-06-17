@@ -1,0 +1,290 @@
+[
+  {
+    "name": "3AwT Comércio de Máquinas LTDA",
+    "accreditationNumber": "785",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Acustica e Vibracoes"
+    }
+  },
+  {
+    "name": "3C Services S.A",
+    "accreditationNumber": "461",
+    "status": "ACTIVE",
+    "state": "CE",
+    "calibrationType": {
+      "description": "Eletricidade e Magnetismo"
+    }
+  },
+  {
+    "name": "3D Metrologia Ltda.",
+    "accreditationNumber": "687",
+    "status": "ACTIVE",
+    "state": "RS",
+    "calibrationType": {
+      "description": "Dimensional"
+    }
+  },
+  {
+    "name": "A Bronzinox Telas Metálicas e Sintéticas Ltda",
+    "accreditationNumber": "787",
+    "status": "INACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Dimensional"
+    }
+  },
+  {
+    "name": "AER Balanças Ltda.",
+    "accreditationNumber": "850",
+    "status": "ACTIVE",
+    "state": "PR",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "A&M Comércio e Calibração de Equipamentos Eirelli",
+    "accreditationNumber": "760",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Pressao"
+    }
+  },
+  {
+    "name": "A. Sianga Serviços de Instrumentos de Precisão e Calibração Ltda",
+    "accreditationNumber": "283",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Eletricidade e Magnetismo"
+    }
+  },
+  {
+    "name": "AABM Brasil Serviços de Calibração & Manutenção Ltda",
+    "accreditationNumber": "733",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Vazao e Velocidade de Fluidos"
+    }
+  },
+  {
+    "name": "Associação Brasileira de Cimento Portland - ABCP",
+    "accreditationNumber": "75",
+    "status": "INACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Força, Torque e Dureza"
+    }
+  },
+  {
+    "name": "ABSI Service Comércio de Instrumentação LTDA",
+    "accreditationNumber": "56",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Temperatura e Umidade"
+    }
+  },
+  {
+    "name": "ACC PR Soluções em Instrumentação, Qualidade e Metrologia Ltda. - EPP",
+    "accreditationNumber": "480",
+    "status": "ACTIVE",
+    "state": "PR",
+    "calibrationType": {
+      "description": "Temperatura e Umidade"
+    }
+  },
+  {
+    "name": "ACCI Serviços de Calibração de Vazão e Densidade Ltda.",
+    "accreditationNumber": "504",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Vazao e Velocidade de Fluidos"
+    }
+  },
+  {
+    "name": "Aferição Ltda.",
+    "accreditationNumber": "391",
+    "status": "ACTIVE",
+    "state": "PE",
+    "calibrationType": {
+      "description": "Força, Torque e Dureza"
+    }
+  },
+  {
+    "name": "Aferitec Comprovações Metrológicas e Comércio Ltda.",
+    "accreditationNumber": "157",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Dimensional"
+    }
+  },
+  {
+    "name": "Alfa Instrumentos Eletrônicos Ltda.",
+    "accreditationNumber": "635",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Alfa Mare Equipamentos e Serviços para Laboratórios Ltda.",
+    "accreditationNumber": "629",
+    "status": "ACTIVE",
+    "state": "GO",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "AllMedHosp Ltda",
+    "accreditationNumber": "716",
+    "status": "INACTIVE",
+    "state": "BA",
+    "calibrationType": {
+      "description": "Pressao"
+    }
+  },
+  {
+    "name": "Almont do Brasil Importação, Comércio e Representação Ltda.",
+    "accreditationNumber": "407",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Acustica e Vibracoes"
+    }
+  },
+  {
+    "name": "ALS Beauty & Personal Care Ltda",
+    "accreditationNumber": "549",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Optica"
+    }
+  },
+  {
+    "name": "Alutal Controles Industriais Ltda.",
+    "accreditationNumber": "522",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Temperatura e Umidade"
+    }
+  },
+  {
+    "name": "Ambtech Serviços Especiais Ltda.",
+    "accreditationNumber": "848",
+    "status": "ACTIVE",
+    "state": "MG",
+    "calibrationType": {
+      "description": "Pressao"
+    }
+  },
+  {
+    "name": "AMP Metrologia e Manutenção de Equipamentos Eirelli",
+    "accreditationNumber": "803",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Analógic Assistência Técnica e Comércio de Balanças Ltda",
+    "accreditationNumber": "569",
+    "status": "ACTIVE",
+    "state": "SP",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Autrotec Laboratório de Metrologia",
+    "accreditationNumber": "593",
+    "status": "ACTIVE",
+    "state": "RJ",
+    "calibrationType": {
+      "description": "Pressao"
+    }
+  },
+  {
+    "name": "Aveerry Industria e Comercio de Equipamentos Petroliferos LTDA",
+    "accreditationNumber": "695",
+    "status": "ACTIVE",
+    "state": "RJ",
+    "calibrationType": {
+      "description": "Vazao e Velocidade de Fluidos"
+    }
+  },
+  {
+    "name": "Norte Industria Comercio de Balanças Ltda",
+    "accreditationNumber": "761",
+    "status": "ACTIVE",
+    "state": "RO",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Balanças Catarinense Comercio e Assistencia Tecnica Ltda",
+    "accreditationNumber": "831",
+    "status": "ACTIVE",
+    "state": "SC",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Balanças Criciúma Comércio e Serviços Ltda",
+    "accreditationNumber": "795",
+    "status": "INACTIVE",
+    "state": "SC",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Balanças Precisa Comércio e Serviços Ltda. - ME",
+    "accreditationNumber": "460",
+    "status": "ACTIVE",
+    "state": "MG",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Balvag Balanças Varzeagrandense Ltda.",
+    "accreditationNumber": "482",
+    "status": "ACTIVE",
+    "state": "MT",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Brum Industria e Comércio de Balanças EIRELI",
+    "accreditationNumber": "815",
+    "status": "ACTIVE",
+    "state": "RS",
+    "calibrationType": {
+      "description": "Massa"
+    }
+  },
+  {
+    "name": "Calibratec Comércio e Calibrações de Instrumentos de Medição Ltda.",
+    "accreditationNumber": "388",
+    "status": "ACTIVE",
+    "state": "MG",
+    "calibrationType": {
+      "description": "Eletricidade e Magnetismo"
+    }
+  }
+]
