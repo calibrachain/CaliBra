@@ -47,7 +47,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
     ///@notice Constant variable to hold the JS Script to be executed off-chain.
     // TODO: outro javascript
     string constant SOURCE_CODE =
-        'const e=await import("npm:ethers@6.10.0");class P extends e.JsonRpcProvider{constructor(u){super(u),this.url=u}async _send(p){return(await fetch(this.url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)})).json()}}const r=new P("https://ethereum.publicnode.com");if(!args?.[0]||!e.isAddress(args[0]))throw new Error("Invalid address");return Functions.encodeUint256(await r.getBalance(args[0]))';
+        'const numId = args[0]; const apiResponse = await Functions.makeHttpRequest({ url: `https://laboratories.onrender.com/api/v1/laboratories/${numId}/status` }); if (apiResponse.error) { console.error(apiResponse.error); throw Error("Request failed"); } const { data } = apiResponse; if (data.status === "ACTIVE") { return Functions.encodeUint256(1); } else { return Functions.encodeUint256(0); }';
     ///@notice magic numbers removal
     uint8 constant ZERO = 0;
 
@@ -64,6 +64,8 @@ contract DCCRegistry is Ownable, FunctionsClient {
     event Response(bytes32 requestId, uint256 returnedValue);
     ///@notice event emitted when an CLF fails
     event RequestFailed(bytes32 requestId, bytes err);
+    ///@notice event emitted when a Laboratory is not active
+    event LaboratoryInactive(bytes32 requestId, bytes err);
 
     // ----------------------------- //
     // --------- Errors ------------ //
@@ -157,6 +159,23 @@ contract DCCRegistry is Ownable, FunctionsClient {
 
             request.returnedValue = returnedValue;
             request.isFulfilled = true;
+
+            //Validation if the Laboratory is active
+            if (returnedValue == 1) {
+                // bytes memory callData = abi.encodeWithSelector(
+                //     bytes4(keccak256("safeMint(address,uint256)")),
+                // address _to,
+                // string calldata _certificateURI,
+                // bytes32 _xmlHash,
+                // uint256 _expiresAt,
+                // string calldata _calibrationType
+                //     recipient,
+                //     tokenId
+                // );
+                // (bool success, ) = nftContract.call(callData);
+            } else {
+                emit LaboratoryInactive(_requestId, _err);
+            }
 
             emit Response(_requestId, returnedValue);
         } else {

@@ -104,7 +104,7 @@ contract DCCNFT is ERC721, Ownable, Pausable {
      * @return tokenId ID of the newly minted NFT
      * TODO REFACTOR
      */
-    function createDCC(
+    function safeMint(
         address _to,
         string calldata _certificateURI,
         bytes32 _xmlHash,
