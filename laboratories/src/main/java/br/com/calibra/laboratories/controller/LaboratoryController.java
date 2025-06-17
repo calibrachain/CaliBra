@@ -20,7 +20,6 @@ import br.com.calibra.laboratories.entity.CalibrationType;
 import br.com.calibra.laboratories.entity.Laboratory;
 import br.com.calibra.laboratories.repository.CalibrationTypeRepository;
 import br.com.calibra.laboratories.service.LaboratoryService;
-
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -33,11 +32,6 @@ public class LaboratoryController {
   private final LaboratoryMapper mapper;
   private final CalibrationTypeRepository calibrationTypeRepository;
 
-  @GetMapping
-  public List<LaboratoryDTO> list() {
-    return mapper.toDtoList(service.findAll());
-  }
-
   @GetMapping("/{accreditationNumber}")
   public ResponseEntity<LaboratoryDTO> findByAccreditationNumber(@PathVariable Integer accreditationNumber) {
     return service.findByAccreditationNumber(accreditationNumber)
@@ -49,18 +43,18 @@ public class LaboratoryController {
   @PostMapping
   public LaboratoryDTO create(@RequestBody @Valid LaboratoryDTO dto) {
     CalibrationType calibrationType = calibrationTypeRepository
-      .findById(dto.getCalibrationTypeId())
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Calibration Type not found"));
+        .findById(dto.getCalibrationTypeId())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Calibration Type not found"));
 
     Laboratory lab = Laboratory.builder()
-      .name(dto.getName())
-      .accreditationNumber(dto.getAccreditationNumber())
-      .status(dto.getStatus())
-      .state(dto.getState())
-      .calibrationType(calibrationType)
-      .build();
-          
-      return mapper.toDto(service.save(lab));
+        .name(dto.getName())
+        .accreditationNumber(dto.getAccreditationNumber())
+        .status(dto.getStatus())
+        .state(dto.getState())
+        .calibrationType(calibrationType)
+        .build();
+
+    return mapper.toDto(service.save(lab));
   }
 
   @DeleteMapping("/{accreditationNumber}")
@@ -78,5 +72,18 @@ public class LaboratoryController {
         .map(mapper::toDto)
         .map(ResponseEntity::ok)
         .orElse(ResponseEntity.notFound().build());
+  }
+
+  @GetMapping("/{accreditationNumber}/status")
+  public ResponseEntity<Laboratory.Status> getStatus(@PathVariable Integer accreditationNumber) {
+    return service.findByAccreditationNumber(accreditationNumber)
+        .map(Laboratory::getStatus)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
+  @GetMapping
+  public List<LaboratoryDTO> list() {
+    return mapper.toDtoList(service.findAll());
   }
 }

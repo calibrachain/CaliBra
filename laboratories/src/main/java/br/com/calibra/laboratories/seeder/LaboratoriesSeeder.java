@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,7 +14,7 @@ import br.com.calibra.laboratories.entity.Laboratory;
 import br.com.calibra.laboratories.repository.CalibrationTypeRepository;
 import br.com.calibra.laboratories.repository.LaboratoryRepository;
 
-@Component
+//@Component
 public class LaboratoriesSeeder implements CommandLineRunner {
 
   private final LaboratoryRepository laboratoryRepository;
