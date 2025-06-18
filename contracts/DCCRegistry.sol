@@ -54,6 +54,9 @@ contract DCCRegistry is Ownable, FunctionsClient {
     ///@notice mapping to store requests informatio
     mapping(bytes32 requestId => RequestInfo) internal s_requestStorage;
 
+    ///@notice NFT Contract for minting the DCC NFTs
+    address private s_nftContract;
+
     // ----------------------------- //
     // ---------- Events ----------- //
     // ----------------------------- //
@@ -66,6 +69,8 @@ contract DCCRegistry is Ownable, FunctionsClient {
     event RequestFailed(bytes32 requestId, bytes err);
     ///@notice event emitted when a Laboratory is not active
     event LaboratoryInactive(bytes32 requestId, bytes err);
+    ///@notice event when the NFT minting fails
+    event MintingFailed(bytes32 requestId);
 
     // ----------------------------- //
     // --------- Errors ------------ //
@@ -100,6 +105,14 @@ contract DCCRegistry is Ownable, FunctionsClient {
     // ----------------------------- //
     // -------- External ----------- //
     // ----------------------------- //
+
+    /**
+     * @notice Function to set the NFT contract address
+     * @param _nftContract Address of the NFT contract that will mint the DCC NFTs
+     */
+    function setNftContract(address _nftContract) external onlyOwner {
+        s_nftContract = _nftContract;
+    }
 
     /**
      * @notice Function to initiate a CLF simple request and query the eth balance of a address
@@ -160,24 +173,34 @@ contract DCCRegistry is Ownable, FunctionsClient {
             request.returnedValue = returnedValue;
             request.isFulfilled = true;
 
-            //Validation if the Laboratory is active
+            //Validation if the Laboratory is active = 1
             if (returnedValue == 1) {
-                // bytes memory callData = abi.encodeWithSelector(
-                //     bytes4(keccak256("safeMint(address,uint256)")),
-                // address _to,
-                // string calldata _certificateURI,
-                // bytes32 _xmlHash,
-                // uint256 _expiresAt,
-                // string calldata _calibrationType
-                //     recipient,
-                //     tokenId
-                // );
-                // (bool success, ) = nftContract.call(callData);
+                // TODO analise what vars need to be passed as parameters at sendRequest
+                address recipient = msg.sender;
+                string memory certificateURI = "";
+                bytes32 xmlHash = bytes32(0);
+                uint256 expiresAt = 0;
+                string memory calibrationType = "";
+
+                // Call the NFT contract's safeMint function
+                (bool success, ) = s_nftContract.call(
+                    abi.encodeWithSignature(
+                        "safeMint(address,string,bytes32,uint256,string)",
+                        recipient,
+                        certificateURI,
+                        xmlHash,
+                        expiresAt,
+                        calibrationType
+                    )
+                );
+                if (!success) {
+                    emit MintingFailed(_requestId);
+                } else {
+                    emit Response(_requestId, returnedValue);
+                }
             } else {
                 emit LaboratoryInactive(_requestId, _err);
             }
-
-            emit Response(_requestId, returnedValue);
         } else {
             emit RequestFailed(_requestId, _err);
         }

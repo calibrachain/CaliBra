@@ -5,7 +5,6 @@ const apiResponse = await Functions.makeHttpRequest({
 })
 
 if (apiResponse.error) {
-    console.error(apiResponse.error) // delete?
     throw Error("Request failed")
 }
 
