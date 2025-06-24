@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.30;
 
 // ----------------------------- //
 // --------- Imports ----------- //
@@ -20,12 +20,6 @@ import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_X
  */
 contract DCCRegistry is Ownable, FunctionsClient {
     // ----------------------------- //
-    // ----- Type declarations ----- //
-    // ----------------------------- //
-
-    using FunctionsRequest for FunctionsRequest.Request;
-
-    // ----------------------------- //
     // --------- Structs ----------- //
     // ----------------------------- //
 
@@ -36,6 +30,12 @@ contract DCCRegistry is Ownable, FunctionsClient {
         bool isFulfilled;
     }
 
+    // ----------------------------- //
+    // --------- Variables --------- //
+    // ----------------------------- //
+
+    using FunctionsRequest for FunctionsRequest.Request;
+
     ///@notice Chainlink Functions donId for the specific chain.
     bytes32 immutable i_donId;
     ///@notice Chainlink Subscription ID to process requests
@@ -44,10 +44,6 @@ contract DCCRegistry is Ownable, FunctionsClient {
     ///@notice the amount of gas needed to complete the call
     // TODO
     uint32 constant CALLBACK_GAS_LIMIT = 200_000;
-    ///@notice Constant variable to hold the JS Script to be executed off-chain.
-    // TODO: outro javascript
-    string constant SOURCE_CODE =
-        'const numId = args[0]; const apiResponse = await Functions.makeHttpRequest({ url: `https://laboratories.onrender.com/api/v1/laboratories/${numId}/status` }); if (apiResponse.error) { console.error(apiResponse.error); throw Error("Request failed"); } const { data } = apiResponse; if (data.status === "ACTIVE") { return Functions.encodeUint256(1); } else { return Functions.encodeUint256(0); }';
     ///@notice magic numbers removal
     uint8 constant ZERO = 0;
 
@@ -56,6 +52,8 @@ contract DCCRegistry is Ownable, FunctionsClient {
 
     ///@notice NFT Contract for minting the DCC NFTs
     address private s_nftContract;
+    ///@notice Variable to hold the JS Script to be executed off-chain.
+    string private s_source_code = "";
 
     // ----------------------------- //
     // ---------- Events ----------- //
@@ -115,6 +113,14 @@ contract DCCRegistry is Ownable, FunctionsClient {
     }
 
     /**
+     * @notice Function to set the JavaScript source code for Chainlink Functions
+     * @param _sourceCode The JavaScript source code to be executed off-chain
+     */
+    function setSourceCode(string memory _sourceCode) external onlyOwner {
+        s_source_code = _sourceCode;
+    }
+
+    /**
      * @notice Function to initiate a CLF simple request and query the eth balance of a address
      * @param _args List of arguments accessible from within the source code
      * @param _bytesArgs Array of bytes arguments, represented as hex strings
@@ -125,7 +131,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
     ) external onlyOwner returns (bytes32 requestId_) {
         FunctionsRequest.Request memory req;
 
-        req._initializeRequestForInlineJavaScript(SOURCE_CODE);
+        req._initializeRequestForInlineJavaScript(s_source_code);
 
         if (_args.length > 0) req._setArgs(_args);
         if (_bytesArgs.length > 0) req._setBytesArgs(_bytesArgs);
@@ -173,24 +179,18 @@ contract DCCRegistry is Ownable, FunctionsClient {
             request.returnedValue = returnedValue;
             request.isFulfilled = true;
 
-            //Validation if the Laboratory is active = 1
+            //Validation if the Laboratory is active (1)
             if (returnedValue == 1) {
                 // TODO analise what vars need to be passed as parameters at sendRequest
                 address recipient = msg.sender;
                 string memory certificateURI = "";
-                bytes32 xmlHash = bytes32(0);
-                uint256 expiresAt = 0;
-                string memory calibrationType = "";
 
                 // Call the NFT contract's safeMint function
                 (bool success, ) = s_nftContract.call(
                     abi.encodeWithSignature(
-                        "safeMint(address,string,bytes32,uint256,string)",
+                        "safeMint(address,string)",
                         recipient,
-                        certificateURI,
-                        xmlHash,
-                        expiresAt,
-                        calibrationType
+                        certificateURI
                     )
                 );
                 if (!success) {

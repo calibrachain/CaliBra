@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.30;
 
 // ----------------------------- //
 // --------- Imports ----------- //
@@ -18,37 +18,16 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
  * @dev Custom URI storage, CEI pattern, revocation and pausability
  */
 contract DCCNFT is ERC721, Ownable, Pausable {
-    using Strings for uint256;
-
-    // ----------------------------- //
-    // --------- Structs ----------- //
-    // ----------------------------- //
-
-    /**
-     * @dev Calibration metadata associated with each NFT
-     * @param xmlHash SHA-256 hash of the original signed XML file
-     * @param issuedAt UNIX timestamp of issuance
-     * @param expiresAt UNIX timestamp of ISO 17025 expiration
-     * @param calibrationType Domain of calibration (e.g., temperature, mass)
-     */
-    struct DCCMetadata {
-        bytes32 xmlHash;
-        uint256 issuedAt;
-        uint256 expiresAt;
-        string calibrationType;
-    }
-
     // ----------------------------- //
     // --------- Storage ----------- //
     // ----------------------------- //
 
-    uint256 private _tokenIdCounter;
-
-    /// @notice Maps tokenId to associated certificate metadata
-    mapping(uint256 => DCCMetadata) private _dccData;
+    uint256 private s_tokenIdCounter;
 
     /// @notice Maps tokenId to off-chain URI (e.g., IPFS)
-    mapping(uint256 => string) private _tokenURIs;
+    mapping(uint256 => string) private s_tokenURIs;
+    // Address autorized to mint NFTs
+    address private s_minterAddress;
 
     // ----------------------------- //
     // ---------- Events ----------- //
@@ -58,13 +37,8 @@ contract DCCNFT is ERC721, Ownable, Pausable {
      * @notice Emitted when a new Digital Calibration Certificate is minted
      * @param to Address receiving the NFT
      * @param tokenId Unique token ID
-     * @param calibrationType Calibration domain string
      */
-    event DCCMinted(
-        address indexed to,
-        uint256 indexed tokenId,
-        string calibrationType
-    );
+    event DCCMinted(address indexed to, uint256 indexed tokenId);
 
     // ----------------------------- //
     // --------- Errors ------------ //
@@ -72,10 +46,14 @@ contract DCCNFT is ERC721, Ownable, Pausable {
 
     /// @dev Thrown when minting to the zero address
     error InvalidRecipient();
+    /// @dev Thrown when contract that interact is invalid
+    error InvalidMinter();
     /// @dev Thrown when certificate expiration is not in the future
     error InvalidExpiration();
     /// @dev Thrown when querying metadata of a nonexistent token
     error TokenDoesNotExist();
+    /// @dev Thrown when an unauthorized address tries to mint
+    error UnauthorizedMinter();
 
     // ----------------------------- //
     // -------- Constructor -------- //
@@ -94,48 +72,40 @@ contract DCCNFT is ERC721, Ownable, Pausable {
     // ----------------------------- //
 
     /**
+     * @dev define the address authorized to mint NFTs. Only the owner can call this.
+     * @param _minterAddress The address of the minter contract
+     */
+    function setMinterAddress(address _minterAddress) public onlyOwner {
+        if (_minterAddress == address(0)) revert InvalidMinter();
+        s_minterAddress = _minterAddress;
+    }
+
+    /**
      * @notice Create a new calibration certificate NFT
      * @dev Only callable by the contract owner (e.g., calibration authority)
      * @param _to Address to receive the NFT
      * @param _certificateURI Off-chain URI pointing to the XML certificate (e.g., IPFS)
-     * @param _xmlHash SHA-256 hash of the signed XML file
-     * @param _expiresAt UNIX timestamp when the certificate expires
-     * @param _calibrationType Domain of the calibration (mass, temperature, etc.)
      * @return tokenId ID of the newly minted NFT
-     * TODO REFACTOR
      */
     function safeMint(
         address _to,
-        string calldata _certificateURI,
-        bytes32 _xmlHash,
-        uint256 _expiresAt,
-        string calldata _calibrationType
+        string calldata _certificateURI
     ) external onlyOwner whenNotPaused returns (uint256 tokenId) {
-        // === Checks ===
         if (_to == address(0)) revert InvalidRecipient();
-        if (_expiresAt <= block.timestamp) revert InvalidExpiration();
+        if (msg.sender == s_minterAddress) revert UnauthorizedMinter();
 
-        // === Effects ===
-        tokenId = _tokenIdCounter;
-        _tokenIdCounter += 1;
+        tokenId = s_tokenIdCounter;
+        s_tokenIdCounter += 1;
 
-        _dccData[tokenId] = DCCMetadata({
-            xmlHash: _xmlHash,
-            issuedAt: block.timestamp,
-            expiresAt: _expiresAt,
-            calibrationType: _calibrationType
-        });
+        s_tokenURIs[tokenId] = _certificateURI;
 
-        _tokenURIs[tokenId] = _certificateURI;
-
-        // === Interactions ===
         _safeMint(_to, tokenId);
 
-        emit DCCMinted(_to, tokenId, _calibrationType);
+        emit DCCMinted(_to, tokenId);
     }
 
     // ----------------------------- //
-    // --------- Getters ----------- //
+    // ---------- Views ------------ //
     // ----------------------------- //
 
     /**
@@ -148,40 +118,6 @@ contract DCCNFT is ERC721, Ownable, Pausable {
     }
 
     /**
-     * @notice Returns true if the DCC is still valid (not expired)
-     * @param tokenId ID of the NFT
-     * @return valid True if the current time is before expiration
-     */
-    function isValid(uint256 tokenId) external view returns (bool valid) {
-        if (!exists(tokenId)) revert TokenDoesNotExist();
-        return block.timestamp <= _dccData[tokenId].expiresAt;
-    }
-
-    /**
-     * @notice Returns the SHA-256 hash of the XML calibration certificate
-     * @param tokenId ID of the NFT
-     * @return xmlHash The stored certificate hash
-     */
-    function getXMLHash(
-        uint256 tokenId
-    ) external view returns (bytes32 xmlHash) {
-        if (!exists(tokenId)) revert TokenDoesNotExist();
-        return _dccData[tokenId].xmlHash;
-    }
-
-    /**
-     * @notice Returns complete metadata for a given token ID
-     * @param tokenId ID of the NFT
-     * @return metadata Struct containing all DCC data
-     */
-    function getMetadata(
-        uint256 tokenId
-    ) external view returns (DCCMetadata memory metadata) {
-        if (!exists(tokenId)) revert TokenDoesNotExist();
-        return _dccData[tokenId];
-    }
-
-    /**
      * @notice Returns the token URI (points to off-chain signed XML file)
      * @param tokenId ID of the NFT
      * @return uri The stored URI string
@@ -190,7 +126,7 @@ contract DCCNFT is ERC721, Ownable, Pausable {
         uint256 tokenId
     ) public view override returns (string memory uri) {
         if (!exists(tokenId)) revert TokenDoesNotExist();
-        return _tokenURIs[tokenId];
+        return s_tokenURIs[tokenId];
     }
 
     // ----------------------------- //
