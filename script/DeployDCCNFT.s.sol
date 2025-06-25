@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 // ----------------------------- //
 // --------- Imports ----------- //
 // ----------------------------- //
-import {Script} from "forge-std/Script.sol";
+import {Script, console2} from "forge-std/Script.sol";
 import {DCCNFT} from "../src/DCCNFT.sol";
 
 /**
@@ -30,6 +30,14 @@ contract DeployDCCNFT is Script {
             )
         );
 
+        // Get the deployer address
+        address deployerAddress = vm.addr(deployerPrivateKey);
+
+        // Check deployer balance
+        uint256 balance = deployerAddress.balance;
+        console2.log("saldo:", balance, ",address:", deployerAddress);
+        require(balance > 0, "Deploy address has zero balance");
+
         // Starts the transaction broadcast. All subsequent contract calls
         // will be sent to the network.
         vm.startBroadcast(deployerPrivateKey);
@@ -37,7 +45,7 @@ contract DeployDCCNFT is Script {
         // Deploys the DCCNFT contract.
         // The address broadcasting the transaction (derived from the private key)
         // will be set as the initial 'owner' of the contract.
-        address deployerAddress = vm.addr(deployerPrivateKey);
+        //address deployerAddress = vm.addr(deployerPrivateKey);
         DCCNFT dccNft = new DCCNFT(deployerAddress);
 
         // Stops the broadcast.
