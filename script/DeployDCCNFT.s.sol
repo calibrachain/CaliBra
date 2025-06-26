@@ -25,12 +25,13 @@ contract DeployDCCNFT is Script {
     function run() external returns (address nft, bytes32 txHash) {
         // Gets the deployer's private key from environment variables
         // or uses a default test sender.
-        uint256 deployerPrivateKey = vm.envOr(
-            "PRIVATE_KEY",
-            uint256(
-                0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-            )
-        );
+        // uint256 deployerPrivateKey = vm.envOr(
+        //     "PRIVATE_KEY",
+        //     uint256(
+        //         0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+        //     )
+        // );
+        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 
         // Get the deployer address
         address deployerAddress = vm.addr(deployerPrivateKey);
@@ -54,14 +55,16 @@ contract DeployDCCNFT is Script {
 
         // Get the recorded logs
         Vm.Log[] memory logs = vm.getRecordedLogs();
-        
+
         // Extract transaction hash from the logs (simplified approach)
         // In practice, you might need to parse the logs more carefully
         if (logs.length > 0) {
             txHash = logs[0].topics[0];
         } else {
             // Fallback: create a hash from contract address and timestamp
-            txHash = keccak256(abi.encodePacked(address(dccNft), block.timestamp));
+            txHash = keccak256(
+                abi.encodePacked(address(dccNft), block.timestamp)
+            );
         }
 
         // Stops the broadcast.

@@ -90,7 +90,7 @@ contract DCCNFT is ERC721, Ownable, Pausable {
     function safeMint(
         address _to,
         string calldata _certificateURI
-    ) external onlyOwner whenNotPaused returns (uint256 tokenId) {
+    ) external whenNotPaused returns (uint256 tokenId) {
         if (_to == address(0)) revert InvalidRecipient();
         if (msg.sender == s_minterAddress) revert UnauthorizedMinter();
 
@@ -111,12 +111,15 @@ contract DCCNFT is ERC721, Ownable, Pausable {
     /**
      * @notice Checks whether a DCC token exists
      * @param tokenId ID of the NFT
-     * @return True if the token exists, false otherwise
+     * @return existsToken True if the token exists, false otherwise
      */
-    function exists(uint256 tokenId) public view returns (bool) {
-        return ownerOf(tokenId) != address(0);
+    function exists(uint256 tokenId) public view returns (bool existsToken) {
+        try this.ownerOf(tokenId) returns (address) {
+            return true;
+        } catch {
+            return false;
+        }
     }
-
     /**
      * @notice Returns the token URI (points to off-chain signed XML file)
      * @param tokenId ID of the NFT

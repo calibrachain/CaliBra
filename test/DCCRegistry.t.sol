@@ -66,6 +66,8 @@ contract DCCRegistryTest is Test {
     string private constant SAMPLE_JS_CODE =
         "return Functions.encodeUint256(1);";
 
+    string private constant SAMPLE_URI =
+        "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
     // ----------------------------- //
     // ----------- Setup ----------- //
     // ----------------------------- //
@@ -146,35 +148,34 @@ contract DCCRegistryTest is Test {
     // ---- Request Sending Tests ------- //
     // ------------------------------------ //
 
-    function test_OwnerCanSendRequest() public {
+    function test_OwnerCanverifyAndMint() public {
         vm.startPrank(OWNER);
 
-        string[] memory args = new string[](1);
-        args[0] = "Lab_Address";
-        bytes[] memory bytesArgs = new bytes[](0);
+        string[] memory args = new string[](2);
+        args[0] = "1";
+        args[1] = SAMPLE_URI;
 
-        vm.expectEmit(true, false, false, true);
+        vm.expectEmit(true, false, false, false);
         emit DCCRegistry.FunctionsRequestSent(bytes32(0)); // RequestId is unknown, so we can't match it
 
-        bytes32 requestId = dccRegistry.sendRequest(args, bytesArgs);
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
         assertTrue(requestId != 0, "Request ID should not be zero");
 
         vm.stopPrank();
     }
 
-    function test_Fail_SendRequestByNonOwner() public {
-        vm.prank(USER_A);
-        string[] memory args = new string[](0);
-        bytes[] memory bytesArgs = new bytes[](0);
+    // function test_Fail_VerifyAndMintByNonOwner() public {
+    //     vm.prank(USER_A);
+    //     string[] memory args = new string[](0);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Ownable.OwnableUnauthorizedAccount.selector,
-                USER_A
-            )
-        );
-        dccRegistry.sendRequest(args, bytesArgs);
-    }
+    //     vm.expectRevert(
+    //         abi.encodeWithSelector(
+    //             Ownable.OwnableUnauthorizedAccount.selector,
+    //             USER_A
+    //         )
+    //     );
+    //     dccRegistry.verifyAndMint(args);
+    // }
 
     // ------------------------------------ //
     // ---- Fulfillment (Callback) Tests -- //
@@ -182,11 +183,11 @@ contract DCCRegistryTest is Test {
 
     function test_FulfillRequest_Success_And_MintSuccess() public {
         // 1. Send a request to get a valid ID
-        vm.prank(OWNER);
-        bytes32 requestId = dccRegistry.sendRequest(
-            new string[](0),
-            new bytes[](0)
-        );
+        vm.prank(USER_A);
+        string[] memory args = new string[](2);
+        args[0] = "1";
+        args[1] = SAMPLE_URI;
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
 
         // 2. Prepare the successful response from the oracle (laboratory is active)
         bytes memory response = abi.encode(uint256(1));
@@ -204,20 +205,20 @@ contract DCCRegistryTest is Test {
         vm.stopPrank();
 
         // 5. Check that the mint was called on the mock NFT
-        // The recipient is msg.sender of the fulfillment call, which is the router
+        // The recipient is msg.sender of the fulfillment call, which is the user A random
         assertEq(
             mockNft.s_lastRecipient(),
-            ROUTER,
+            USER_A,
             "Mock NFT recipient should be the router"
         );
     }
 
     function test_FulfillRequest_Success_And_MintFails() public {
-        vm.prank(OWNER);
-        bytes32 requestId = dccRegistry.sendRequest(
-            new string[](0),
-            new bytes[](0)
-        );
+        vm.prank(USER_A);
+        string[] memory args = new string[](2);
+        args[0] = "1";
+        args[1] = SAMPLE_URI;
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
 
         bytes memory response = abi.encode(uint256(1));
 
@@ -233,11 +234,11 @@ contract DCCRegistryTest is Test {
     }
 
     function test_FulfillRequest_LaboratoryInactive() public {
-        vm.prank(OWNER);
-        bytes32 requestId = dccRegistry.sendRequest(
-            new string[](0),
-            new bytes[](0)
-        );
+        vm.prank(USER_A);
+        string[] memory args = new string[](2);
+        args[0] = "1";
+        args[1] = SAMPLE_URI;
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
 
         // Simulate a response where the laboratory is not active (value != 1)
         bytes memory response = abi.encode(uint256(0));
@@ -251,11 +252,11 @@ contract DCCRegistryTest is Test {
     }
 
     function test_FulfillRequest_ChainlinkError() public {
-        vm.prank(OWNER);
-        bytes32 requestId = dccRegistry.sendRequest(
-            new string[](0),
-            new bytes[](0)
-        );
+        vm.prank(USER_A);
+        string[] memory args = new string[](2);
+        args[0] = "1";
+        args[1] = SAMPLE_URI;
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
 
         // Simulate a scenario where the oracle returns an error instead of a response
         bytes memory errorBytes = abi.encode("off-chain lookup failed");
@@ -283,11 +284,11 @@ contract DCCRegistryTest is Test {
 
     function test_Fail_FulfillRequest_AlreadyFulfilled() public {
         // 1. Send and fulfill a request successfully once
-        vm.prank(OWNER);
-        bytes32 requestId = dccRegistry.sendRequest(
-            new string[](0),
-            new bytes[](0)
-        );
+        vm.prank(USER_A);
+        string[] memory args = new string[](2);
+        args[0] = "1";
+        args[1] = SAMPLE_URI;
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
         bytes memory response = abi.encode(uint256(1));
 
         vm.prank(ROUTER);

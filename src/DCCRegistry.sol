@@ -26,8 +26,10 @@ contract DCCRegistry is Ownable, FunctionsClient {
     struct RequestInfo {
         uint256 requestTime;
         uint256 returnedValue;
-        string target;
+        string laboratory;
         bool isFulfilled;
+        address recipient;
+        string certificateURI;
     }
 
     // ----------------------------- //
@@ -53,7 +55,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
     ///@notice NFT Contract for minting the DCC NFTs
     address private s_nftContract;
     ///@notice Variable to hold the JS Script to be executed off-chain.
-    string private s_source_code = "";
+    string private s_source_code;
 
     // ----------------------------- //
     // ---------- Events ----------- //
@@ -122,19 +124,16 @@ contract DCCRegistry is Ownable, FunctionsClient {
 
     /**
      * @notice Function to initiate a CLF simple request and query the eth balance of a address
-     * @param _args List of arguments accessible from within the source code
-     * @param _bytesArgs Array of bytes arguments, represented as hex strings
+     * @param _args List of arguments accessible from within the source code (0:idLab, 1:certificateURI)
      */
-    function sendRequest(
-        string[] memory _args,
-        bytes[] memory _bytesArgs
-    ) external onlyOwner returns (bytes32 requestId_) {
+    function verifyAndMint(
+        string[] memory _args
+    ) external returns (bytes32 requestId_) {
         FunctionsRequest.Request memory req;
 
         req._initializeRequestForInlineJavaScript(s_source_code);
 
         if (_args.length > 0) req._setArgs(_args);
-        if (_bytesArgs.length > 0) req._setBytesArgs(_bytesArgs);
 
         requestId_ = _sendRequest(
             req._encodeCBOR(),
@@ -146,8 +145,10 @@ contract DCCRegistry is Ownable, FunctionsClient {
         s_requestStorage[requestId_] = RequestInfo({
             requestTime: block.timestamp,
             returnedValue: 0,
-            target: _args[0],
-            isFulfilled: false
+            laboratory: _args[0],
+            isFulfilled: false,
+            recipient: msg.sender,
+            certificateURI: _args[1]
         });
 
         emit FunctionsRequestSent(requestId_);
@@ -181,9 +182,9 @@ contract DCCRegistry is Ownable, FunctionsClient {
 
             //Validation if the Laboratory is active (1)
             if (returnedValue == 1) {
-                // TODO analise what vars need to be passed as parameters at sendRequest
-                address recipient = msg.sender;
-                string memory certificateURI = "";
+                // recover the recipient and certificate URI from the request
+                address recipient = request.recipient;
+                string memory certificateURI = request.certificateURI;
 
                 // Call the NFT contract's safeMint function
                 (bool success, ) = s_nftContract.call(
