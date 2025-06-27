@@ -22,6 +22,7 @@ A **decentralized Web3 marketplace** that:
 - Enables accredited laboratories to offer calibration services digitally
 - Generates DCCs as NFTs with verifiable on-chain data
 - Utilizes Chainlink Functions and Automation for verification, traceability, and automatic validity management
+- Utilize the Avalanche network as the foundation for our solution, owing to its unique combination of scalability, interoperability, and low transaction costs.
 
 ### Target Users & Market Analysis
 
@@ -33,7 +34,7 @@ A **decentralized Web3 marketplace** that:
    - Generate and issue DCCs
    - Must hold ISO/IEC 17025 accreditation
 
-2. **Industrial Clients / Hospitals**
+2. **Industrial Clients (ie, Hospitals)**
 
    - Purchase calibration services
    - Receive DCC NFTs
@@ -50,16 +51,13 @@ A **decentralized Web3 marketplace** that:
    - Maintain traceability standards
    - Authority for accreditation verification
 
-5. ** Others ?! **
-   - Health insurance ?
-
-**Marketplace Actors:** - All actors are present for a functional marketplace :hand: :rotating_light:
+**Marketplace Actors:** - All actors are present for a functional marketplace
 
 - **Suppliers**: Accredited Laboratories
 - **Buyers**: Industrial Clients
 - **Validators**: Auditors/Verifiers
 - **Authority**: NMIs
-- **Infrastructure**: Smart contracts + Chainlink oracles
+- **Infrastructure**: Smart contracts + Chainlink oracles + Avalanche
 
 ```mermaid
 ---
@@ -134,7 +132,7 @@ sequenceDiagram
 #### 1. Laboratory Registration & Verification
 
 - **Chainlink Functions Integration**: Automatic ISO/IEC 17025 accreditation verification via NMI APIs
-- Laboratory profile creation with credentials display
+- Laboratory profile creation with credentials display (Soulbound NFT)
 - Continuous accreditation status monitoring
 
 #### 2. Service Marketplace
@@ -156,7 +154,7 @@ sequenceDiagram
 #### 4. Automated Lifecycle Management
 
 - **Chainlink Automation**:
-  - Automatic certificate expiration handling
+  - Automatic certificate expiration handling (
   - Periodic audit triggers
   - Status updates and notifications
 
@@ -173,6 +171,7 @@ sequenceDiagram
 - **MarketplaceCore**: Service listings and transactions
 - **DCCRegistry**: NFT minting and metadata management
 - **LaboratoryRegistry**: Accreditation verification and status
+- **Soulbound NFTs**: identify the actor role
 
 #### Chainlink Integration
 
@@ -189,7 +188,7 @@ sequenceDiagram
 
 The following sections detail the complete user experience across all stakeholders in the marketplace:
 
-#### 1. Laboratory Onboarding
+#### 1. Laboratory Onboarding (post-MVP)
 
 **Objective**: Get accredited laboratories verified and active on the platform
 
@@ -201,6 +200,7 @@ The following sections detail the complete user experience across all stakeholde
 - **Wait for Verification**: System processes submitted credentials
 - **Chainlink Verifies ISO**: Automated verification via NMI APIs using Chainlink Functions
 - **Accreditation Confirmed**: Laboratory receives confirmation of successful verification
+- **Soulbound NFT**: Laboratory receives a soulbound NFT with metadata about its services
 - **Profile Goes Live**: Laboratory profile becomes visible and active on the marketplace
 
 **Pain Points**: Initial wallet connection for Web3 newcomers, credential document preparation
@@ -360,7 +360,7 @@ journey
 - **Receive DCC NFT**: Client receives NFT in their wallet
 - **Verify Certificate**: Use platform tools to verify certificate authenticity
 - **Show to Auditors**: Present certificate for compliance verification
-- **Compliance Check**: Auditors validate certificate against regulatory requirements
+- **Compliance Check**: Auditors validate the certificate against regulatory requirements
 - **Certificate Valid**: Confirmation of certificate acceptance for compliance purposes
 
 **Pain Points**: NFT management for non-crypto users, auditor education on Web3 certificates
@@ -475,36 +475,29 @@ flowchart TD
 - NFT minting success rate
 - Chainlink oracle reliability
 
-### Development Timeline (Hackathon) :stop_sign: :arrow_forward: Tudo chutado aqui!
+### Development Timeline (Hackathon)
 
-#### Phase 1: Foundation (3 days) :exclamation:
+#### Phase 1: MVP Foundation
 
-- Smart contract architecture
-- Basic marketplace functionality
-- Laboratory registration system
+- [x] Smart contract architecture
+- [ ] Basic marketplace functionality -> post hackathon
+- [x] Laboratory registration system
+- [x] Chainlink Functions for NMI verification
+- [x] IPFS integration for certificate storage
+- [x] NFT minting mechanism
+- [x] Avalanche deployment
+- [x] Chainlink Automation implementation
+- [x] Certificate lifecycle management
+- [x] Verification system
 
-#### Phase 2: Integration (4 days) :exclamation:
+#### Phase 2: Polish & Demo
 
-- Chainlink Functions for NMI verification
-- IPFS integration for certificate storage
-- NFT minting mechanism
-- Avalanche integration :white_circle:
+- [x] UI/UX refinements
+- [x] Demo preparation
+- [x] Documentation completion
+- [x] Pitch preparation
 
-#### Phase 3: Automation (5 days) :exclamation:
-
-- Chainlink Automation implementation
-- Certificate lifecycle management
-- Verification system
-- ElizaOS integration (AI Agents) :white_circle:
-
-#### Phase 4: Polish & Demo (7 days) :exclamation:
-
-- UI/UX refinements
-- Demo preparation
-- Documentation completion
-- Pitch preparation
-
-### Technical Risks & Mitigation :stop_sign: :arrow_forward: Precisa melhorar!
+### Technical Risks & Mitigation
 
 #### NMI API Integration
 
@@ -516,25 +509,21 @@ flowchart TD
 - **Risk**: Content availability issues
 - **Mitigation**: Multiple IPFS gateways, backup storage solutions
 
-#### Oracle Dependencies
-
-- **Risk**: Chainlink service limitations
-- **Mitigation**: Graceful degradation, manual override capabilities
-
 ### Competitive Advantages
 
-1. **First-mover advantage** in Web3 calibration marketplace :question:
+1. **First-mover advantage** in Web3 calibration marketplace
 2. **Automated traceability** ensuring SI compliance
 3. **Immutable certificates** preventing fraud
 4. **Real-time verification** reducing audit costs
 5. **Decentralized trust** eliminating single points of failure
-6. **Improving efficiency** making the process more effective and productive with less waste :question:
+6. **Improving efficiency** making the process more effective and productive with less waste
 
 ### Future Roadmap
 
 #### Post-MVP Features
 
 - Multi-chain deployment
+- Marketplace functionality
 - Advanced analytics dashboard
 - Integration with IoT sensors for real-time monitoring
 - Certificate lifecycle automation beyond expiration
@@ -548,4 +537,4 @@ flowchart TD
 
 ### Focus
 
-This MVP addresses critical pain points in metrological calibration while leveraging Web3 technologies to create a trustless, transparent, and automated marketplace. The integration of Chainlink oracles, ElizaOS and Avalanche ensures real-world data verification, making this solution both technically innovative and practically valuable for the industrial calibration market.
+This MVP addresses critical pain points in metrological calibration while leveraging Web3 technologies to create a trustless, transparent, and automated marketplace. The integration of Chainlink oracles and Avalanche ensures the verification of real-world data, making this solution both technically innovative and practically valuable for the industrial calibration market.
