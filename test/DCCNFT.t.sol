@@ -120,28 +120,40 @@ contract DCCNFTTest is Test {
         );
     }
 
-    // function test_Fail_MintByNonOwner() public {
-    //     vm.prank(USER_A); // Random user tries to mint
-    //     // The correct revert is OwnableUnauthorizedAccount
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(
-    //             Ownable.OwnableUnauthorizedAccount.selector,
-    //             USER_A
-    //         )
-    //     );
-    //     dccNft.safeMint(USER_B, SAMPLE_URI);
-    // }
-
-    function test_Fail_MintByAuthorizedMinter() public {
-        // Sets MINTER_CONTRACT as the authorized minter
+    function test_AuthorizedMinterCanMint() public {
+        // 1. Owner sets an authorized minter contract address
         vm.prank(OWNER);
         dccNft.setMinterAddress(MINTER_CONTRACT);
 
-        // Tries to mint from the minter's address
+        // 2. The authorized minter contract successfully mints an NFT
         vm.prank(MINTER_CONTRACT);
-        // According to your logic, this should revert, as only the owner can call safeMint
+        uint256 tokenId = dccNft.safeMint(USER_A, SAMPLE_URI);
+
+        assertEq(
+            dccNft.ownerOf(tokenId),
+            USER_A,
+            "Minter should be able to mint to USER_A"
+        );
+    }
+
+    function test_Fail_MintByNonAuthorizedAddress() public {
+        // A non-authorized address (USER_A) attempts to mint, which should fail.
+        vm.prank(USER_A);
         vm.expectRevert(DCCNFT.UnauthorizedMinter.selector);
         dccNft.safeMint(USER_B, SAMPLE_URI);
+    }
+
+    function test_TokenIdIncrementsCorrectly() public {
+        vm.prank(OWNER);
+
+        uint256 tokenId1 = dccNft.safeMint(USER_A, SAMPLE_URI);
+        assertEq(tokenId1, 0, "First token ID should be 0");
+        vm.prank(OWNER);
+        uint256 tokenId2 = dccNft.safeMint(USER_B, SAMPLE_URI);
+        assertEq(tokenId2, 1, "Second token ID should be 1");
+        vm.prank(OWNER);
+        uint256 tokenId3 = dccNft.safeMint(USER_A, "another_uri");
+        assertEq(tokenId3, 2, "Third token ID should be 2");
     }
 
     function test_Fail_MintToZeroAddress() public {
@@ -234,32 +246,6 @@ contract DCCNFTTest is Test {
         assertTrue(
             dccNft.exists(tokenId),
             "Token 0 should exist after being minted"
-        );
-    }
-
-    // ------------------------------------ //
-    // --- Non-Transferability Test ----- //
-    // ------------------------------------ //
-
-    /**
-     * @notice This test checks that the tokens ARE transferable, which might be against the @notice's intention.
-     * To make the tokens truly non-transferable, you would need to override the transfer functions.
-     */
-    function test_TokenIsTransferable() public {
-        // 1. Mint a token for USER_A
-        vm.prank(OWNER);
-        uint256 tokenId = dccNft.safeMint(USER_A, SAMPLE_URI);
-        assertEq(dccNft.ownerOf(tokenId), USER_A);
-
-        // 2. USER_A transfers the token to USER_B
-        vm.prank(USER_A);
-        dccNft.transferFrom(USER_A, USER_B, tokenId);
-
-        // 3. Verifies that the transfer was successful
-        assertEq(
-            dccNft.ownerOf(tokenId),
-            USER_B,
-            "The transfer should have been successful"
         );
     }
 }

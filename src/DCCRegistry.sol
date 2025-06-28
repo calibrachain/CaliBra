@@ -12,6 +12,15 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {FunctionsClient} from "@chainlink/contracts/src/v0.8/functions/dev/v1_X/FunctionsClient.sol";
 import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/dev/v1_X/libraries/FunctionsRequest.sol";
 
+/// @notice Minimal interface for the DCCNFT contract
+interface IDCCNFT {
+    /// @dev Mints a new DCC NFT. See {DCCNFT-safeMint}.
+    function safeMint(
+        address to,
+        string calldata certificateURI
+    ) external returns (uint256);
+}
+
 /**
  * @title Master Contract of Digital Calibration Certificate Registry (DCCRegistry)
  * @author CaliBRA
@@ -45,9 +54,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
 
     ///@notice the amount of gas needed to complete the call
     // TODO
-    uint32 constant CALLBACK_GAS_LIMIT = 200_000;
-    ///@notice magic numbers removal
-    uint8 constant ZERO = 0;
+    uint32 constant CALLBACK_GAS_LIMIT = 400_000;
 
     ///@notice mapping to store requests informatio
     mapping(bytes32 requestId => RequestInfo) internal s_requestStorage;
@@ -55,6 +62,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
     ///@notice NFT Contract for minting the DCC NFTs
     address private s_nftContract;
     ///@notice Variable to hold the JS Script to be executed off-chain.
+    ///@dev On mainnet will be immutable and setted in the constructor, but on testnet it can be changed
     string private s_source_code;
 
     // ----------------------------- //
@@ -80,6 +88,10 @@ contract DCCRegistry is Ownable, FunctionsClient {
     error UnexpectedRequestID(bytes32 requestId);
     /// @dev Thrown when a callback tries to fulfill an already fulfilled request
     error RequestAlreadyFulfilled(bytes32 requestId);
+    /// @dev Thrown when a required address is the zero address
+    error InvalidAddress();
+    /// @dev Thrown when the arguments for a request are invalid
+    error InvalidArguments();
 
     // ----------------------------- //
     // -------- Constructor -------- //
@@ -111,6 +123,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
      * @param _nftContract Address of the NFT contract that will mint the DCC NFTs
      */
     function setNftContract(address _nftContract) external onlyOwner {
+        if (_nftContract == address(0)) revert InvalidAddress();
         s_nftContract = _nftContract;
     }
 
@@ -125,10 +138,16 @@ contract DCCRegistry is Ownable, FunctionsClient {
     /**
      * @notice Function to initiate a CLF simple request and query the eth balance of a address
      * @param _args List of arguments accessible from within the source code (0:idLab, 1:certificateURI)
+     * @dev The first argument is the laboratory address, the second is the certificate URI
+     *      The source code must be set with a javascript code before calling this function
+     *      On mainnet the access must be restricted
      */
     function verifyAndMint(
         string[] memory _args
     ) external returns (bytes32 requestId_) {
+        if (_args.length < 2) revert InvalidArguments();
+        if (bytes(s_source_code).length == 0) revert InvalidArguments();
+
         FunctionsRequest.Request memory req;
 
         req._initializeRequestForInlineJavaScript(s_source_code);
@@ -171,36 +190,35 @@ contract DCCRegistry is Ownable, FunctionsClient {
         bytes memory _err
     ) internal override {
         RequestInfo storage request = s_requestStorage[_requestId];
-        if (request.requestTime == ZERO) revert UnexpectedRequestID(_requestId);
+        if (request.requestTime == 0) revert UnexpectedRequestID(_requestId);
         if (request.isFulfilled) revert RequestAlreadyFulfilled(_requestId);
 
-        if (_response.length > ZERO) {
-            uint256 returnedValue = abi.decode(_response, (uint256));
+        // Mark as fulfilled early to prevent re-entrancy
+        request.isFulfilled = true;
 
+        if (_response.length > 0) {
+            uint256 returnedValue = abi.decode(_response, (uint256));
             request.returnedValue = returnedValue;
-            request.isFulfilled = true;
+            emit Response(_requestId, returnedValue);
 
             //Validation if the Laboratory is active (1)
             if (returnedValue == 1) {
-                // recover the recipient and certificate URI from the request
-                address recipient = request.recipient;
-                string memory certificateURI = request.certificateURI;
-
-                // Call the NFT contract's safeMint function
-                (bool success, ) = s_nftContract.call(
-                    abi.encodeWithSignature(
-                        "safeMint(address,string)",
-                        recipient,
-                        certificateURI
+                // Use try/catch to handle potential minting failures gracefully
+                try
+                    IDCCNFT(s_nftContract).safeMint(
+                        request.recipient,
+                        request.certificateURI
                     )
-                );
-                if (!success) {
+                {
+                    // NFT Minted!  \o/
+                } catch {
                     emit MintingFailed(_requestId);
-                } else {
-                    emit Response(_requestId, returnedValue);
                 }
             } else {
-                emit LaboratoryInactive(_requestId, _err);
+                emit LaboratoryInactive(
+                    _requestId,
+                    "Laboratory reported as not active"
+                );
             }
         } else {
             emit RequestFailed(_requestId, _err);

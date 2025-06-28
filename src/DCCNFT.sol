@@ -14,7 +14,7 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 /**
  * @title Digital Calibration Certificate NFT (DCCNFT)
  * @author CaliBRA
- * @notice Emits non-transferable NFTs representing calibration certificates
+ * @notice Emits NFTs representing calibration certificates
  * @dev Custom URI storage, CEI pattern, revocation and pausability
  */
 contract DCCNFT is ERC721, Ownable, Pausable {
@@ -48,8 +48,6 @@ contract DCCNFT is ERC721, Ownable, Pausable {
     error InvalidRecipient();
     /// @dev Thrown when contract that interact is invalid
     error InvalidMinter();
-    /// @dev Thrown when certificate expiration is not in the future
-    error InvalidExpiration();
     /// @dev Thrown when querying metadata of a nonexistent token
     error TokenDoesNotExist();
     /// @dev Thrown when an unauthorized address tries to mint
@@ -92,7 +90,9 @@ contract DCCNFT is ERC721, Ownable, Pausable {
         string calldata _certificateURI
     ) external whenNotPaused returns (uint256 tokenId) {
         if (_to == address(0)) revert InvalidRecipient();
-        if (msg.sender == s_minterAddress) revert UnauthorizedMinter();
+        // Only the owner or the authorized minter contract can mint
+        if (msg.sender != owner() && msg.sender != s_minterAddress)
+            revert UnauthorizedMinter();
 
         tokenId = s_tokenIdCounter;
         s_tokenIdCounter += 1;

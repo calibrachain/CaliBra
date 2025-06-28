@@ -11,3 +11,7 @@ auto_detect_remappings = true
 [dependencies]
 "@openzeppelin/contracts" = "OpenZeppelin/openzeppelin-contracts"
 "@chainlink/contracts" = "smartcontractkit/chainlink"
+
+
+[rpc_endpoints]
+fuji = "https://api.avax-test.network/ext/bc/C/rpc"

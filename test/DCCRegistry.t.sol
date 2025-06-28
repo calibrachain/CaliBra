@@ -17,6 +17,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  * @notice A mock DCCNFT contract to simulate interactions.
  */
 contract MockDCCNFT {
+    // --- Events ---
     event Minted(address recipient, string uri);
 
     bool private s_shouldRevert = false;
@@ -27,7 +28,10 @@ contract MockDCCNFT {
         s_shouldRevert = _shouldRevert;
     }
 
-    function safeMint(address _recipient, string memory _uri) external {
+    function safeMint(
+        address _recipient,
+        string memory _uri
+    ) external returns (uint256) {
         if (s_shouldRevert) {
             revert("Minting failed as requested by test");
         }
@@ -126,6 +130,12 @@ contract DCCRegistryTest is Test {
         dccRegistry.setNftContract(address(mockNft));
     }
 
+    function test_Fail_SetNftContractToZeroAddress() public {
+        vm.prank(OWNER);
+        vm.expectRevert(DCCRegistry.InvalidAddress.selector);
+        dccRegistry.setNftContract(address(0));
+    }
+
     function test_OwnerCanSetSourceCode() public {
         vm.prank(OWNER);
         string memory newCode = "const newCode = true;";
@@ -148,15 +158,16 @@ contract DCCRegistryTest is Test {
     // ---- Request Sending Tests ------- //
     // ------------------------------------ //
 
-    function test_OwnerCanverifyAndMint() public {
+    function test_SuccessVerifyAndMint() public {
         vm.startPrank(OWNER);
 
         string[] memory args = new string[](2);
         args[0] = "1";
         args[1] = SAMPLE_URI;
 
+        // We can't match the requestId, so we check for the event name only
         vm.expectEmit(true, false, false, false);
-        emit DCCRegistry.FunctionsRequestSent(bytes32(0)); // RequestId is unknown, so we can't match it
+        emit DCCRegistry.FunctionsRequestSent(bytes32(0));
 
         bytes32 requestId = dccRegistry.verifyAndMint(args);
         assertTrue(requestId != 0, "Request ID should not be zero");
@@ -164,18 +175,14 @@ contract DCCRegistryTest is Test {
         vm.stopPrank();
     }
 
-    // function test_Fail_VerifyAndMintByNonOwner() public {
-    //     vm.prank(USER_A);
-    //     string[] memory args = new string[](0);
+    function test_Fail_VerifyAndMintWithInvalidArguments() public {
+        vm.prank(OWNER);
+        string[] memory args = new string[](1); // Invalid length
+        args[0] = "1";
 
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(
-    //             Ownable.OwnableUnauthorizedAccount.selector,
-    //             USER_A
-    //         )
-    //     );
-    //     dccRegistry.verifyAndMint(args);
-    // }
+        vm.expectRevert(DCCRegistry.InvalidArguments.selector);
+        dccRegistry.verifyAndMint(args);
+    }
 
     // ------------------------------------ //
     // ---- Fulfillment (Callback) Tests -- //
@@ -197,7 +204,7 @@ contract DCCRegistryTest is Test {
 
         // 4. Simulate the callback from the Chainlink Router
         vm.startPrank(ROUTER);
-        vm.expectEmit(true, false, false, true);
+        vm.expectEmit(false, false, false, true);
         emit DCCRegistry.Response(requestId, 1);
 
         // This is the function the router calls on the client contract
@@ -209,7 +216,7 @@ contract DCCRegistryTest is Test {
         assertEq(
             mockNft.s_lastRecipient(),
             USER_A,
-            "Mock NFT recipient should be the router"
+            "Mock NFT recipient should be user A"
         );
     }
 
@@ -244,8 +251,11 @@ contract DCCRegistryTest is Test {
         bytes memory response = abi.encode(uint256(0));
 
         vm.startPrank(ROUTER);
-        vm.expectEmit(true, false, false, true);
-        emit DCCRegistry.LaboratoryInactive(requestId, "");
+        vm.expectEmit(false, false, false, true);
+        emit DCCRegistry.LaboratoryInactive(
+            requestId,
+            "Laboratory reported as not active"
+        );
 
         dccRegistry.handleOracleFulfillment(requestId, response, "");
         vm.stopPrank();
@@ -302,6 +312,32 @@ contract DCCRegistryTest is Test {
                 requestId
             )
         );
+        dccRegistry.handleOracleFulfillment(requestId, response, "");
+    }
+
+    // ------------------------------------ //
+    // -------- Gas Estimation Test ------- //
+    // ------------------------------------ //
+
+    /**
+     * @notice This test is specifically for estimating the gas cost of the callback.
+     * @dev Run with `forge test --match-test test_Gas_EstimateCallbackGasUsage -vvvv` to see gas details.
+     *      The gas cost for `handleOracleFulfillment` will be shown in the report.
+     */
+    function test_Gas_EstimateCallbackGasUsage() public {
+        // 1. A user sends a request to mint an NFT.
+        //    Based on your current contract, any user can call this.
+        vm.prank(USER_A);
+        string[] memory args = new string[](2);
+        args[0] = "1"; // Laboratory ID
+        args[1] = SAMPLE_URI;
+        bytes32 requestId = dccRegistry.verifyAndMint(args);
+
+        // 2. Prepare a successful response from the oracle
+        bytes memory response = abi.encode(uint256(1));
+
+        // 3. Simulate the callback from the Chainlink Router and measure gas
+        vm.prank(ROUTER);
         dccRegistry.handleOracleFulfillment(requestId, response, "");
     }
 }

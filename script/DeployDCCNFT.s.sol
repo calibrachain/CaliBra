@@ -38,8 +38,10 @@ contract DeployDCCNFT is Script {
 
         // Check deployer balance
         uint256 balance = deployerAddress.balance;
-        console2.log("saldo:", balance, ",address:", deployerAddress);
-        require(balance > 0, "Deploy address has zero balance");
+
+        // console2.log("PRIVATE_KEY:", deployerPrivateKey);
+        // console2.log("saldo:", balance);
+        // console2.log("Deployer address:", deployerAddress);
 
         // Starts the transaction broadcast. All subsequent contract calls
         // will be sent to the network.
