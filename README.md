@@ -151,7 +151,7 @@ This script, [DeployDCCRegistry.s.sol](script/DeployDCCRegistry.s.sol), uses [He
 forge script script/DeployDCCRegistry.s.sol --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast --verify -vvvv
 ```
 
-After deployment, you will need to configure the interaction between the two contracts by calling `setNftContract()` on `DCCRegistry` with the address of the deployed `DCCNFT` contract.
+After deployment, you will need to configure the interaction between the two contracts by calling `setNftContract()` on `DCCRegistry` with the address of the deployed `DCCNFT` contract. You will still need to update the javascript source to access the API through the chainlink functions calling `setSourceCode` on `DCCRegistry`.
 
 Additionally, you will need to update the  deployed `DCCRegistry` contract address by calling `setMinterAddress` on `DCCNFT` contract.
 
