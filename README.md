@@ -56,7 +56,7 @@ This contract acts as the brain of the system, orchestrating the validation of i
 
 **Core Features:**
 
-* **Chainlink Functions Integration**: Sends requests to execute off-chain [JavaScript code](script_js/api.js) to validate data, such as the status of a calibration laboratory.
+* **Chainlink Functions Integration**: Sends requests to execute off-chain [JavaScript code](scripts_js/api.js) to validate data, such as the status of a calibration laboratory.
 * **Access Control (`Ownable`)**: Only the owner can configure critical parameters, like the `DCCNFT` contract address and the Chainlink Functions source code.
 * **Request Management**: Stores the state of each request sent to Chainlink Functions and ensures each is processed only once.
 * **Callback Logic (`_fulfillRequest`)**: Processes the response from the oracle. If the validation is successful, it triggers the minting of a new NFT in the `DCCNFT` contract.
@@ -144,7 +144,7 @@ forge script script/DeployDCCNFT.s.sol --rpc-url $RPC_URL --private-key $PRIVATE
 
 **Deploying `DCCRegistry.sol`**
 
-This script, [script/DeployDCCRegistry.s.sol](script/DeployDCCRegistry.s.sol), uses [HelperConfig.s.sol](script/HelperConfig.s.sol) to fetch the correct parameters (Router address, DON ID, etc.) from your `.env` file.
+This script, [DeployDCCRegistry.s.sol](script/DeployDCCRegistry.s.sol), uses [HelperConfig.s.sol](script/HelperConfig.s.sol) to fetch the correct parameters (Router address, DON ID, etc.) from your `.env` file.
 
 ```bash
 forge script script/DeployDCCRegistry.s.sol --rpc-url $RPC_URL --private-key $PRIVATE_KEY --broadcast --verify -vvvv
