@@ -56,10 +56,12 @@ This contract acts as the brain of the system, orchestrating the validation of i
 
 **Core Features:**
 
-* **Chainlink Functions Integration**: Sends requests to execute off-chain [JavaScript code](scripts_js/api.js) to validate data, such as the status of a calibration laboratory.
+* **Chainlink Functions Integration**:
+  +  **API Access Javascript**: Sends requests to execute off-chain JavaScript code to validate data, such as the status of a calibration laboratory. [[go to code]](scripts_js/api.js)
+  +  **Request Management**: Stores the state of each request sent to Chainlink Functions and ensures each is processed only once. [[go to code]](https://github.com/calibrachain/calibra-contracts/blob/main/src/DCCRegistry.sol#L151-L162)
+  +  **Callback Logic (`_fulfillRequest`)**: Processes the response from the oracle. If the validation is successful, it triggers the minting of a new NFT in the `DCCNFT` contract. [[go to code]](https://github.com/calibrachain/calibra-contracts/blob/main/src/DCCRegistry.sol#L187-L226)
 * **Access Control (`Ownable`)**: Only the owner can configure critical parameters, like the `DCCNFT` contract address and the Chainlink Functions source code.
-* **Request Management**: Stores the state of each request sent to Chainlink Functions and ensures each is processed only once.
-* **Callback Logic (`_fulfillRequest`)**: Processes the response from the oracle. If the validation is successful, it triggers the minting of a new NFT in the `DCCNFT` contract.
+
 
 ---
 
