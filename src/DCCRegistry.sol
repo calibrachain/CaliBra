@@ -54,7 +54,7 @@ contract DCCRegistry is Ownable, FunctionsClient {
 
     ///@notice the amount of gas needed to complete the call
     // TODO
-    uint32 constant CALLBACK_GAS_LIMIT = 400_000;
+    uint32 constant CALLBACK_GAS_LIMIT = 250_000;
 
     ///@notice mapping to store requests informatio
     mapping(bytes32 requestId => RequestInfo) internal s_requestStorage;
