@@ -158,3 +158,9 @@ After deployment, you will need to configure the interaction between the two con
 Additionally, you will need to update the  deployed `DCCRegistry` contract address by calling `setMinterAddress` on `DCCNFT` contract.
 
 Now, you can interact with the contracts.
+
+#### Contracts deployed on MVP version
+
+DCCNFT.sol: [https://testnet.snowtrace.io/address/0x8f139E6D41B3C87f06cB2BFd74754Dd747A40787](https://testnet.snowtrace.io/address/0x8f139E6D41B3C87f06cB2BFd74754Dd747A40787)
+
+DCCRegistry: [https://testnet.snowtrace.io/address/0x1bBc93F287Cba4630B53c6cB32779De75865F98B](https://testnet.snowtrace.io/address/0x1bBc93F287Cba4630B53c6cB32779De75865F98B)
